@@ -1,168 +1,162 @@
 #include <iostream>
-#include <cstring> // For string handling functions
 
 using namespace std;
 
-class student
+class complex
 {
-    int id;
-    char *name;
-    int s;         // Number of grades
-    float *grad;   // Array to store grades
+private:
+    int img, real;
 
 public:
-    // Default constructor
-    student()
+    // Constructors
+    complex()
     {
-        id = 0;
-        s = 0;
-        grad = nullptr; // Initialize to nullptr
-        name = nullptr; // Initialize to nullptr
+        img = real = 0;
+    }
+    complex(int m)
+    {
+        img = real = m;
+    }
+    complex(int m, int n)
+    {
+        real = m;
+        img = n;
+    }
+    complex(const complex &rst) // Copy constructor
+    {
+        real = rst.real;
+        img = rst.img;
     }
 
-    // Parameterized constructor
-    student(int s_id, int size_grads, const char *s_name)
+    // Setters
+    void set_real(int r)
     {
-        id = s_id;
-        s = size_grads;
-        grad = new float[s];
-        name = new char[strlen(s_name) + 1];
-        strcpy(name, s_name); // Copy the name
+        real = r;
+    }
+    void set_img(int i)
+    {
+        img = i;
     }
 
-    // Copy constructor
-    student(const student &rst)
+    // Getters
+    int get_real() const
     {
-        id = rst.id;
-        s = rst.s;
-        grad = new float[s];
-        for (int i = 0; i < s; i++)
-        {
-            grad[i] = rst.grad[i];
-        }
-        name = new char[strlen(rst.name) + 1];
-        strcpy(name, rst.name); // Copy the name
+        return real;
+    }
+    int get_img() const
+    {
+        return img;
     }
 
-    // Destructor
-    ~student()
-    {
-        delete[] grad;
-        delete[] name;
-    }
-
-    void set_id(int s_id)
-    {
-        id = s_id;
-    }
-
-    void set_size(int g_size)
-    {
-        if (grad) delete[] grad; // Free existing memory
-        s = g_size;
-        grad = new float[s];
-    }
-
-    void set_grad(int ind, float g)
-    {
-        if ((ind >= 0) && (ind < s))
-        {
-            grad[ind] = g;
-        }
-        else
-        {
-            cerr << "Index out of bounds!" << endl;
-        }
-    }
-
-    void set_name(const char *s_name)
-    {
-        if (name) delete[] name; // Free existing memory
-        name = new char[strlen(s_name) + 1];
-        strcpy(name, s_name);
-    }
-
-    int get_id() const
-    {
-        return id;
-    }
-
-    int get_size() const
-    {
-        return s;
-    }
-
-    float get_grad(int ind) const
-    {
-        if ((ind >= 0) && (ind < s))
-        {
-            return grad[ind];
-        }
-        else
-        {
-            cerr << "Index out of bounds!" << endl;
-            return -1; // Return an invalid value to indicate error
-        }
-    }
-
-    const char* get_name() const
-    {
-        return name;
-    }
+    // Overloaded operators
+    complex operator+(const complex &c);         // Add two complex numbers
+    complex operator+(int m);                   // Add an integer to the complex number
+    complex operator++();                       // Prefix increment
+    complex operator++(int);                    // Postfix increment
+    bool operator==(const complex &c) const;    // Check equality
+    complex &operator=(const complex &c);       // Assignment operator
+    friend complex operator+(int m, const complex &c); // Add int + complex (friend function)
+    operator int();                             // Conversion operator to int
 };
 
-// Function to fill a student object with user input
-student fill_student()
+// Definition of overloaded operators
+complex complex::operator+(const complex &c)
 {
-    int id, size;
-    char name[100]; // Temporary array to store the name
-    cout << "Enter student ID: ";
-    cin >> id;
-
-    cout << "Enter student name: ";
-    cin.ignore(); // Clear the newline character
-    cin.getline(name, 100);
-
-    cout << "Enter the number of grades: ";
-    cin >> size;
-
-    student s(id, size, name);
-    for (int i = 0; i < size; i++)
-    {
-        float grade;
-        cout << "Enter grade " << i + 1 << ": ";
-        cin >> grade;
-        s.set_grad(i, grade);
-    }
-
-    return s;
+    complex temp;
+    temp.real = real + c.real;
+    temp.img = img + c.img;
+    return temp;
 }
 
-// Function to print student details
-void print_student(const student &s)
+complex complex::operator+(int m)
 {
-    cout << "Student ID: " << s.get_id() << endl;
-    cout << "Student Name: " << s.get_name() << endl;
-    cout << "Grades: ";
-    for (int i = 0; i < s.get_size(); i++)
-    {
-        cout << s.get_grad(i) << " ";
-    }
-    cout << endl;
+    complex temp;
+    temp.real = real + m;
+    temp.img = img;
+    return temp;
 }
 
+complex complex::operator++() // Prefix increment
+{
+    real++;
+    img++;
+    return *this; // Return the updated object
+}
+
+complex complex::operator++(int) // Postfix increment
+{
+    complex old = *this; // Save the current state
+    real++;
+    img++;
+    return old; // Return the old state
+}
+
+bool complex::operator==(const complex &c) const
+{
+    return ((real == c.real) && (img == c.img));
+}
+
+complex &complex::operator=(const complex &c)
+{
+    if (this != &c) // Avoid self-assignment
+    {
+        real = c.real;
+        img = c.img;
+    }
+    return *this;
+}
+
+complex operator+(int m, const complex &c)
+{
+    complex temp;
+    temp.real = m + c.real;
+    temp.img = c.img;
+    return temp;
+}
+
+complex::operator int()
+{
+    return real; // Convert to the real part
+}
+
+// Main function to test the class
 int main()
 {
-    // Create and fill a student object
-    student s = fill_student();
+    // Test constructors
+    complex c1(3, 6), c2(2, 4), c3;
 
-    // Print student details
-    print_student(s);
+    // Test addition
+    c3 = c1 + c2;
+    cout << "c1 + c2 = (" << c3.get_real() << ", " << c3.get_img() << ")\n";
 
-    // Test copy constructor
-    student s_copy(s);
-    cout << "Copied Student Details:" << endl;
-    print_student(s_copy);
+    // Test addition with an integer
+    c3 = c1 + 5;
+    cout << "c1 + 5 = (" << c3.get_real() << ", " << c3.get_img() << ")\n";
+
+    // Test prefix increment
+    ++c1;
+    cout << "++c1 = (" << c1.get_real() << ", " << c1.get_img() << ")\n";
+
+    // Test postfix increment
+    c3 = c1++;
+    cout << "c1++ = (" << c3.get_real() << ", " << c3.get_img() << ")\n";
+    cout << "After c1++ = (" << c1.get_real() << ", " << c1.get_img() << ")\n";
+
+    // Test equality
+    bool isEqual = (c1 == c2);
+    cout << "c1 == c2: " << (isEqual ? "True" : "False") << "\n";
+
+    // Test assignment
+    c3 = c2;
+    cout << "After c3 = c2: (" << c3.get_real() << ", " << c3.get_img() << ")\n";
+
+    // Test addition using friend function
+    c3 = 10 + c1;
+    cout << "10 + c1 = (" << c3.get_real() << ", " << c3.get_img() << ")\n";
+
+    // Test conversion operator
+    int realPart = c1;
+    cout << "Real part of c1: " << realPart << "\n";
 
     return 0;
 }
